@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投資シミュレーションゲーム</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="nav-logo">投資シミュレーション</div>
+        <ul class="nav-menu">
+            <li><a href="#" onclick="showHelp('howTo')">投資の仕方</a></li>
+            <li><a href="#" onclick="showHelp('trivia')">投資の豆知識</a></li>
+            <li><a href="#" onclick="showTerms()">利用規約</a></li>
+        </ul>
+    </nav>
+
+    <div id="game-screen">
+        <h1>投資シミュレーション (50日チャレンジ)</h1>
+
+        <div class="container">
+            <div class="panel">
+                <div class="status-box">
+                    <div><strong>現在の日数:</strong> <span id="display-day">1</span> / 50 日</div>
+                    <div><strong>所持金:</strong> <span id="display-money">100,000</span> 円</div>
+                    <div><strong>保有株数:</strong> <span id="display-stocks">0</span> 株</div>
+                    <hr>
+                    <div><strong>現在の銘柄:</strong> <span id="display-brand-name">銘柄A</span></div>
+                    <div><strong>現在の株価:</strong> <span id="display-price">1,000</span> 円</div>
+                    <div><strong>信用度:</strong> <span id="display-reliability">高 (安定型)</span></div>
+                </div>
+
+                <div class="brand-select">
+                    <button class="btn btn-brand active" onclick="selectBrand(0)">銘柄A (安定国債)</button>
+                    <button class="btn btn-brand" onclick="selectBrand(1)">銘柄B (自動車大手)</button>
+                    <button class="btn btn-brand" onclick="selectBrand(2)">銘柄C (ITベンチャー)</button>
+                    <button class="btn btn-brand" onclick="selectBrand(3)">銘柄D (暗号資産)</button>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-buy" onclick="buyStock()">1株 買う</button>
+                    <button class="btn btn-sell" onclick="sellStock()">1株 売る</button>
+                    <button class="btn btn-next" onclick="nextDay()">次の日へ進む</button>
+                    <button class="btn btn-end" onclick="endGame()">ゲーム終了</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div id="chart-area">
+                    <h3>株価チャート（過去10日間〜現在）</h3>
+                    <canvas id="stockChart"></canvas>
+                </div>
+
+                <div id="result-area" class="hidden">
+                    <h2>最終結果報告</h2>
+                    <div class="result-box">
+                        <p><strong>プレイ日数:</strong> <span id="result-days">0</span> 日</p>
+                        <p><strong>最終残高（現金）:</strong> <span id="result-money">0</span> 円</p>
+                        <p><strong>株の強制売却額:</strong> <span id="result-stocks-value">0</span> 円</p>
+                        <hr>
+                        <p class="total-assets"><strong>最終総資産:</strong> <span id="result-total">0</span> 円</p>
+                        <p>（元手: 100,000 円 / 収支: <span id="result-profit">0</span> 円）</p>
+                    </div>
+                    <button class="btn btn-next" onclick="location.reload()">もう一度プレイする</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="terms-screen" class="hidden" style="padding: 20px; max-width: 800px; margin: 0 auto;">
+        <h2>利用規約</h2>
+        <div class="terms-content" style="background: #f9f9f9; padding: 20px; border-radius: 80px; border: 1px solid #ddd; margin-bottom: 20px; text-align: left; line-height: 1.6; color: #333;">
+            <p><strong>第1条（目的）</strong><br>本規約は、この投資シミュレーションゲーム（以下「本ゲーム」）の利用条件を定めるものです。</p>
+            <p><strong>第2条（免責事項）</strong><br>・本ゲームは教育および娯楽を目的としたシミュレーションであり、実際の金融商品の値動きや利益を保証するものではありません。<br>・本ゲーム内で生じた仮想の損失や利益について、制作者は一切の責任を負いません。実際の投資は自己責任で行ってください。</p>
+            <p><strong>第3条（禁止事項）</strong><br>本ゲームのプログラムを不正に改ざんする行為、およびサーバーに過度な負荷をかける行為を禁止します。</p>
+            <p><strong>第4条（利用料金および環境整備）</strong><br>・本ゲームの基本利用料金は無料とします。ただし、通信に必要となる通信料等は利用者の負担となります。<br>・利用者は、本ゲームを利用するために必要な端末や通信環境を、自らの責任と費用で用意するものとします。</p>
+            <p><strong>第5条（データの取り扱い）</strong><br>・本ゲーム内におけるプレイデータ（仮想資産、ランキング、スコア等）は、本ゲーム内のみで有効なものであり、現実の金銭や価値に換金することはできません。<br>・制作者は、システムの保守点検やアップデート、または不具合修正のために、予告なくプレイデータの一部または全部をリセット、変更できるものとします。</p>
+            <p><strong>第6条（サービスの変更・中断・終了）</strong><br>・制作者は、利用者に事前に通知することなく、本ゲームの内容を変更、追加、または廃止することができるものとします。<br>・制作者は、システムの保守、通信回線の障害、天災地変、その他やむを得ない事由により、本ゲームの提供を一時的に中断または停止することができるものとします。</p>
+            <p><strong>第7条（知的財産権）</strong><br>本ゲームに関する文章、画像、プログラム、デザインその他の著作物に関する一切の知的財産権は、制作者または正当な権限を有する第三者に帰属します。利用者は、これらを無断で複製、転載、改ざん、二次利用することはできません。</p>
+            <p><strong>第8条（違反者への措置）</strong><br>利用者が本規約（特に第3条の禁止事項）に違反した場合、またはそのおそれがあると制作者が判断した場合、制作者は事前の通知なく、当該利用者による本ゲームへのアクセス遮断、プレイデータの削除、その他必要と認める措置を講じることができるものとします。</p>
+            <p><strong>第9条（本規約の変更）</strong><br>制作者は、必要と判断した場合には、いつでも本規約を変更することができるものとします。変更後の規約は、本ゲーム内または関連サイトに掲載された時点から効力を生じるものとし、変更後に利用者が本ゲームを利用した場合は、変更後の規約に同意したものとみなします。</p>
+            <p><strong>第10条（準拠法および裁判管轄）</strong><br>・本規約の解釈および適用にあたっては、日本法を準拠法とします。<br>・本ゲームまたは本規約に関して制作者と利用者の間で生じた一切の紛争については、制作者の所在地を管轄する裁判所を第一審の専属的合意管轄裁判所とします。</p>
+        </div>
+        <button class="btn btn-next" onclick="backToGame()">ゲームに戻る</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
